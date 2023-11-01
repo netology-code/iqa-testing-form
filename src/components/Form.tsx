@@ -24,7 +24,7 @@ export const Form = () => {
     const [inputsValue, setInputsValue] = useState(initialState);
     const [isValidInp, setisValidInp] = useState(isValidInputs);
 
-    const nameHandler = (e) => {
+    const nameHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         let isValid = true;
         const {name, value} = e.target;
         console.log(name, value)
@@ -73,11 +73,14 @@ export const Form = () => {
             setisValidInp(item => ({ ...item, passport: false }));
             return;
         }
-
-        for (const prop in isValidInp) {
-            if (!isValidInp[prop]) {
-                return;
-            }
+        let prop: keyof typeof isValidInp;
+        for (prop in isValidInp) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (isValidInp.hasOwnProperty(prop)) {
+                if (isValidInp[prop]) {
+                    return;
+                }
+            }            
         }
 
         const result = await fetch(import.meta.env.VITE_URL, {
