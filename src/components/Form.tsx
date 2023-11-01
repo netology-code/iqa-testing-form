@@ -27,13 +27,11 @@ export const Form = () => {
     const nameHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         let isValid = true;
         const {name, value} = e.target;
-        console.log(name, value)
 
         if(name === 'telephone' && isValidInp.telephone) {
             isValid = arrCodeSymbol.includes(value.charCodeAt(value.length - 1)) ? true : false;            
         }
         if(name === 'birthdate') {
-            console.log(value)
             isValid = value === '' ? false : true;
         }
 
@@ -61,10 +59,8 @@ export const Form = () => {
 
     const submitHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        console.log(inputsValue)
 
         if (!inputsValue.birthdate) {
-            console.log(inputsValue.birthdate)
             setisValidInp(item => ({ ...item, birthdate: false }));
             return;
         }
@@ -90,10 +86,9 @@ export const Form = () => {
             },
             body: JSON.stringify({...inputsValue, patronymic: 'Отсутствует'})
         });
-        console.log(result)
         if (result.ok) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const data = await result.json();
-            console.log(data);
         }
         
     }
