@@ -89,6 +89,12 @@ export const Form = () => {
         
     }
 
+    const clearHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setisValidInp(isValidInputs);
+        setInputsValue(initialState);
+    }
+
     return (
         <form>
             <h2>Заявка на дебетовую карту</h2>
@@ -141,6 +147,7 @@ export const Form = () => {
                 onChange={nameHandler}
             />
             <button onClick={submitHandler}>Отправить</button>
+            <button onClick={clearHandler}>Очистить</button>
         </form>
     )
 }
