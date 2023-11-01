@@ -87,8 +87,8 @@ export const Form = () => {
             body: JSON.stringify({...inputsValue, patronymic: 'Отсутствует'})
         });
         if (result.ok) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const data = await result.json();
+            console.log(data);
         }
         
     }
