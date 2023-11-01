@@ -59,7 +59,6 @@ export const Form = () => {
 
     const submitHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-
         if (!inputsValue.birthdate) {
             setisValidInp(item => ({ ...item, birthdate: false }));
             return;
@@ -71,12 +70,9 @@ export const Form = () => {
         }
         let prop: keyof typeof isValidInp;
         for (prop in isValidInp) {
-            // eslint-disable-next-line no-prototype-builtins
-            if (isValidInp.hasOwnProperty(prop)) {
-                if (isValidInp[prop]) {
-                    return;
-                }
-            }            
+            if (!isValidInp[prop]) {
+                return;
+            }           
         }
 
         const result = await fetch(import.meta.env.VITE_URL, {
