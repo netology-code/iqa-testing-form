@@ -18,7 +18,6 @@ app.get('/',(req, res) => {
 
 app.post('/', (req, res) => {
     const {name, surname, patronymic, birthdate, passport} = req.body;
-    console.log(name, surname, patronymic, birthdate, passport)
 
     const data = {
         name: surname,
@@ -32,23 +31,39 @@ app.post('/', (req, res) => {
     const date = new Date(birthdate);
     const age = new Date().getFullYear() - date.getFullYear();
 
-    console.log(age)
-
     if (surname === '') {
-        res.status(200).json({success: false, error: 'Нет фамилии'});
-        return;
+        return res.status(200).json({success: false, error: 'Нет фамилии'});
     }
 
     if (age < 18) {
-        res.status(200).json({success: false, error: 'Кандидат несовершеннолетний' });
-        return;
+        return res.status(200).json({success: false, error: 'Кандидат несовершеннолетний' });
     }
+
+    if (name.toLowerCase() === 'редирект' || surname.toLowerCase() === 'редирект' || patronymic.toLowerCase() === 'редирект') {
+        const redirectUrl = req.get('origin');
+        return res.redirect(301, redirectUrl + '/testing-form');
+    }
+
+    if (name.toLowerCase() === 'потерян' || surname.toLowerCase() === 'потерян' || patronymic.toLowerCase() === 'потерян') {
+        return res.status(404).send('Not found');
+    }
+
+    if (name.toLowerCase() === 'плохой' || surname.toLowerCase() === 'плохой' || patronymic.toLowerCase() === 'плохой') {
+        return res.status(400).send('Bad request');
+    }
+
+    if (name.toLowerCase() === 'неавторизованный' || surname.toLowerCase() === 'неавторизованный' || patronymic.toLowerCase() === 'неавторизованный') {
+        return res.status(401).send('Ошбка авторизации');
+    }
+    if (name.toLowerCase() === 'чайник' || surname.toLowerCase() === 'чайник' || patronymic.toLowerCase() === 'чайник') {
+        return res.status(418).send("I'm A Teapot");
+    }
+    if (name.toLowerCase() === 'ошибка' || surname.toLowerCase() === 'ошибка' || patronymic.toLowerCase() === 'ошибка') {
+        return res.status(500).send("Internal Server Error");
+    } 
     
     res.status(200).json({success: true, data: {...data} });
-          
-    // res.status(500).json({success: false, msg: e});   
-
   })
 
-  app.listen(3000, () => console.log(`Listening on: 3000`));
-//   module.exports.handler = serverless(app);
+//   app.listen(3000, () => console.log(`Listening on: 3000`));
+  module.exports.handler = serverless(app);

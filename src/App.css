@@ -23,16 +23,24 @@
     font-size: 40px;
     margin: 0 0 10px;
 }
-
-.form-box input {
+.input-box {
     width: 100%;
-    margin-top: 40px;
+    margin-top: 20px;
+    position: relative;
+}
+.form-box input {
+    width: 100%;    
     outline: none;
     border: none;
     border-bottom: 1px solid;
     font-size: 20px;
     padding: 5px 0;
     background-color: white;
+}
+.text-error {
+    width: 100%;
+    color: red;
+    height: 30px;
 }
 .form-box button {
     margin-top: 40px;
