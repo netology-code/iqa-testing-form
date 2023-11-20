@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const serverless = require('serverless-http');
 
+
 const app = express();
 
 app.use(cors({
@@ -16,9 +17,14 @@ app.get('/',(req, res) => {
     res.status(200).json({msg: 'server is works'});
 })
 
+app.get('/redirect',(req, res) => {
+    res.status(200).send('Redirect');
+})
+
 app.post('/', (req, res) => {
     const {name, surname, patronymic, birthdate, passport} = req.body;
-
+    
+    
     const data = {
         name: surname,
         surname: name,
@@ -31,17 +37,15 @@ app.post('/', (req, res) => {
     const date = new Date(birthdate);
     const age = new Date().getFullYear() - date.getFullYear();
 
-    if (surname === '') {
-        return res.status(200).json({success: false, error: 'Нет фамилии'});
-    }
-
     if (age < 18) {
         return res.status(200).json({success: false, error: 'Кандидат несовершеннолетний' });
     }
 
     if (name.toLowerCase() === 'редирект' || surname.toLowerCase() === 'редирект' || patronymic.toLowerCase() === 'редирект') {
-        const redirectUrl = req.get('origin');
-        return res.redirect(301, redirectUrl + '/testing-form');
+        // const redirectUrl = req.get('origin');
+        // return res.redirect(301, redirectUrl + '/testing-form');
+         // return res.redirect(301, req.url + 'redirect');
+        return res.redirect(301, '..');
     }
 
     if (name.toLowerCase() === 'потерян' || surname.toLowerCase() === 'потерян' || patronymic.toLowerCase() === 'потерян') {
@@ -65,5 +69,5 @@ app.post('/', (req, res) => {
     res.status(200).json({success: true, data: {...data} });
   })
 
-// app.listen(3000, () => console.log(`Listening on: 3000`));
-  module.exports.handler = serverless(app);
+app.listen(3000, () => console.log(`Listening on: 3000`));
+//   module.exports.handler = serverless(app);

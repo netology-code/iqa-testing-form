@@ -1,5 +1,6 @@
 import { useState } from "react";
 import InputMask from 'react-input-mask';
+import { TempIsValid, TempTextErr } from "./types";
 
 const initialState = {
     name: '',
@@ -53,7 +54,6 @@ export const Form = () => {
              return false;
         }
 
-        // const isValid = checkCorrectSymbol(value);
         const isValid = value.search(/^[А-Яа-я-]+$/i) === 0 ? true : false;
         isValid
             ? setTextErr(item => ({ ...item, [name]: '' }))
@@ -78,6 +78,9 @@ export const Form = () => {
         }
         if(name === 'birthdate') {
             isValid = value === '' ? false : true;
+            isValid
+            ? setTextErr(item => ({ ...item, [name]: '' }))
+            : setTextErr(item => ({ ...item, [name]: 'Поле заполненно не полностью' }));
         }
         if(name === 'passport') {
             if(value.length < 13) {
@@ -102,10 +105,7 @@ export const Form = () => {
                 setInputsValue(item => ({ ...item, [name]: value + ' ' }));
                 return;
             }
-        }
-
-
-        
+        }        
 
         setisValidInp(item => ({ ...item, [name]: isValid }));
         setInputsValue(item => ({ ...item, [name]: value }));
@@ -122,15 +122,25 @@ export const Form = () => {
 
     const submitHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        if (!inputsValue.birthdate) {
-            setisValidInp(item => ({ ...item, birthdate: false }));
+        let isEmpty = false;
+        const tempIsValidObj: TempIsValid = {};
+        const tempTextErr: TempTextErr = {};
+
+        let propValue: keyof typeof inputsValue;
+        for(propValue in inputsValue) {
+            if (inputsValue[propValue] === '') {
+                isEmpty = true;
+                tempIsValidObj[propValue] = false;
+                tempTextErr[propValue] = 'Поле должно быть заполнено';                
+            } 
+        }
+        
+        if (isEmpty) {
+            setisValidInp(item => ({ ...item, ...tempIsValidObj }));
+            setTextErr(item => ({ ...item, ...tempTextErr }));
             return;
         }
 
-        if (inputsValue.passport.trim() === '') {
-            setisValidInp(item => ({ ...item, passport: false }));
-            return;
-        }
         let prop: keyof typeof isValidInp;
         for (prop in isValidInp) {
             if (!isValidInp[prop]) {
@@ -160,7 +170,8 @@ export const Form = () => {
         setisValidInp(isValidInputs);
         setInputsValue(initialState);
     }    
-
+    
+    
     return (
         <form>
             <h2>Заявка на дебетовую карту</h2>
