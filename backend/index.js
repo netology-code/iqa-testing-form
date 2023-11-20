@@ -65,5 +65,5 @@ app.post('/', (req, res) => {
     res.status(200).json({success: true, data: {...data} });
   })
 
-//   app.listen(3000, () => console.log(`Listening on: 3000`));
+// app.listen(3000, () => console.log(`Listening on: 3000`));
   module.exports.handler = serverless(app);

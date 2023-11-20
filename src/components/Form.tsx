@@ -1,6 +1,5 @@
 import { useState } from "react";
-
-const arrCodeSymbol = [32, 40, 41, 43, 45, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57];
+import InputMask from 'react-input-mask';
 
 const initialState = {
     name: '',
@@ -34,56 +33,91 @@ export const Form = () => {
     const [inputsValue, setInputsValue] = useState(initialState);
     const [isValidInp, setisValidInp] = useState(isValidInputs);
     const [textErr, setTextErr] = useState(textError);
+    const [resp, setResp] = useState({statusCode: '', statusText: ''});
 
-    const checkCorrectSymbol = (str: string): boolean => {
-        let isValidStr = true;
-        for (let i = 0; i < str.length; i += 1) {
-            if (
-                str.charCodeAt(i) < 65 
-                || (str.charCodeAt(i) > 90 && str.charCodeAt(i) < 97)
-                || (str.charCodeAt(i) > 122 && str.charCodeAt(i) < 192)
-            ) {
-                isValidStr = false;
-                break;
-            }
+    const checkFIO = (name: string, value: string): boolean => {
+        if (value.length === 0) {
+            setTextErr(item => ({ ...item, [name]: 'Поле не может быть пустым' }));
+            return false;
         }
-        return isValidStr;
+        if (value.length === 1) {
+            setTextErr(item => ({ ...item, [name]: 'Значение должно быть более 1 буквы' }));
+            return false;
+        }
+        if((name === 'name' || name === 'patronymic') && value.length > 64) {
+            setTextErr(item => ({ ...item, [name]: 'Значение не может быть более 64 символов' }));
+            return false;
+        }
+        if (value.charCodeAt(value.length - 1) === 45) {
+            setTextErr(item => ({ ...item, [name]: 'Значение не может заканчиваться на дефис' }));
+             return false;
+        }
+
+        // const isValid = checkCorrectSymbol(value);
+        const isValid = value.search(/^[А-Яа-я-]+$/i) === 0 ? true : false;
+        isValid
+            ? setTextErr(item => ({ ...item, [name]: '' }))
+            : setTextErr(item => ({ ...item, [name]: 'Значение может состоять из кириллических букв и дефиса' }));
+            
+        return isValid;        
     }
 
     const nameHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         let isValid = true;
         const {name, value} = e.target;
 
+        if(name === 'name' || name === 'surname' || name === 'patronymic') {
+            isValid = checkFIO(name, value);
+        }        
+
         if(name === 'telephone' && value.length > 0) {
-            for (let i = 0; i < value.length; i += 1) {
-                if(!arrCodeSymbol.includes(value.charCodeAt(i))) {
-                    isValid = false;
-                    break;
-                }
-            }
+            isValid = !value.includes('_');
             isValid
                 ? setTextErr(item => ({ ...item, [name]: '' }))
-                : setTextErr(item => ({ ...item, [name]: 'Не корректное значение' }))          
+                : setTextErr(item => ({ ...item, [name]: 'Поле заполненно не полностью' }))          
         }
         if(name === 'birthdate') {
             isValid = value === '' ? false : true;
         }
-
-        if(name === 'name' || name === 'surname' || name === 'patronymic') {
-            if(value.length > 0) {
-                isValid = checkCorrectSymbol(value);
-                isValid
-                    ? setTextErr(item => ({ ...item, [name]: '' }))
-                    : setTextErr(item => ({ ...item, [name]: 'Строка содержит не корректный символ' }))
+        if(name === 'passport') {
+            if(value.length < 13) {
+                isValid = false;
+                setTextErr(item => ({ ...item, [name]: 'Поле заполненно не полностью' }))
+                if (value.search(/^[0-9a-z\s]+$/i) === -1) {
+                    setisValidInp(item => ({ ...item, [name]: isValid }));
+                    setInputsValue(item => ({ ...item, [name]: value.slice(0, value.length - 1)}));
+                    return;
+                }
+            } 
+            if(value.length >= 13) {
+                isValid = true;
+                setTextErr(item => ({ ...item, [name]: '' }))
+            }
+            if(value.length >= 14) {                
+                setInputsValue(item => ({ ...item, [name]: value.slice(0, value.length - 1)}));
+                return;
+            }
+            if(value.length === 4) {
+                setisValidInp(item => ({ ...item, [name]: isValid }));
+                setInputsValue(item => ({ ...item, [name]: value + ' ' }));
+                return;
             }
         }
+
+
+        
 
         setisValidInp(item => ({ ...item, [name]: isValid }));
         setInputsValue(item => ({ ...item, [name]: value }));
     }
 
-    const focusHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.target.type='date';
+    const clearHandler = (e: React.SyntheticEvent<HTMLElement>) => {
+        const clickInput= e.currentTarget.dataset.clear;
+        if (clickInput) {
+            setTextErr(item => ({ ...item, [clickInput]: '' }));
+            setisValidInp(item => ({ ...item, [clickInput]: true }));
+            setInputsValue(item => ({ ...item, [clickInput]: '' }));
+        }        
     }
 
     const submitHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -111,27 +145,32 @@ export const Form = () => {
             },
             body: JSON.stringify({...inputsValue, patronymic: 'Отсутствует'})
         });
-        if (result.ok && !result.redirected) {
-            const data = await result.json();
-            console.log(data);
+        // console.log(result)
+        if (result.redirected) {
+            setResp({statusCode: '301', statusText: 'Moved Permanently'})
+        } else {
+            setResp({statusCode: String(result.status), statusText: result.statusText})
         }
         
-    }
+        // if (result.ok && !result.redirected) {
+        //     const data = await result.json();
+        //     console.log(data);
+        // }
 
-    const clearHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
         setisValidInp(isValidInputs);
         setInputsValue(initialState);
-    }
+    }    
 
     return (
         <form>
             <h2>Заявка на дебетовую карту</h2>
             <div className="input-box">
+                <div className="clear" data-clear="name" onClick={clearHandler}>+</div>
+                <div className="input-label">имя</div>
                 <input 
                     type="text" 
                     name="name" 
-                    placeholder="ИМЯ" 
+                    placeholder="ВАШЕ ИМЯ" 
                     style={isValidInp.name ? {borderColor: '#ddd'} : {borderColor: 'red'}} 
                     value={inputsValue.name} 
                     onChange={nameHandler}
@@ -139,10 +178,12 @@ export const Form = () => {
                 <div className="text-error">{textErr.name}</div>
             </div>
             <div className="input-box">
+                <div className="clear" data-clear="surname" onClick={clearHandler}>+</div>
+                <div className="input-label">фамилия</div>
                 <input 
                     type="text" 
                     name="surname" 
-                    placeholder="ФАМИЛИЯ" 
+                    placeholder="ВАША ФАМИЛИЯ" 
                     style={isValidInp.surname ? {borderColor: '#ddd'} : {borderColor: 'red'}} 
                     value={inputsValue.surname} 
                     onChange={nameHandler}
@@ -150,20 +191,26 @@ export const Form = () => {
                 <div className="text-error">{textErr.surname}</div>
             </div>
             <div className="input-box">
+                <div className="clear" data-clear="patronymic" onClick={clearHandler}>+</div>
+                <div className="input-label">отчество</div>
                 <input 
                     type="text" 
                     name="patronymic" 
-                    placeholder="ОТЧЕСТВО" 
+                    placeholder="ВАШЕ ОТЧЕСТВО" 
                     style={isValidInp.patronymic ? {borderColor: '#ddd'} : {borderColor: 'red'}} 
                     value={inputsValue.patronymic} onChange={nameHandler}
                 />
                 <div className="text-error">{textErr.patronymic}</div>
             </div>
             <div className="input-box">
-                <input 
-                    type="text" 
+                <div className="clear" data-clear="telephone" onClick={clearHandler}>+</div>
+                <div className="input-label">телефон</div>
+                <InputMask 
+                    type="tel" 
                     name="telephone" 
-                    placeholder="ТЕЛЕФОН" 
+                    placeholder="+7(111)111-11-11"
+                    mask="+7(999)999-99-99"
+                    maskChar="_"
                     style={isValidInp.telephone ? {borderColor: '#ddd'} : {borderColor: 'red'}} 
                     value={inputsValue.telephone} 
                     onChange={nameHandler}
@@ -171,30 +218,39 @@ export const Form = () => {
                 <div className="text-error">{textErr.telephone}</div>
             </div>
             <div className="input-box">
+            <div className="input-label">дата рождения</div>
                 <input 
-                    type="text" 
+                    type="date" 
                     name="birthdate" 
-                    placeholder="ДАТА РОЖДЕНИЯ" 
+                    placeholder="" 
                     style={isValidInp.birthdate ? {borderColor: '#ddd'} : {borderColor: 'red'}} 
                     value={inputsValue.birthdate} 
                     onChange={nameHandler} 
-                    onFocus={focusHandler}
+                    // onFocus={focusHandler}
                 />
                 <div className="text-error">{textErr.birthdate}</div>
             </div>
             <div className="input-box">
+                <div className="clear" data-clear="passport" onClick={clearHandler}>+</div>
+                <div className="input-label">паспорт</div>
                 <input 
                     type="text" 
                     name="passport" 
-                    placeholder="ПАСПОРТ" 
+                    placeholder="0000 000000" 
                     style={isValidInp.passport ? {borderColor: '#ddd'} : {borderColor: 'red'}} 
                     value={inputsValue.passport} 
                     onChange={nameHandler}
                 />
                 <div className="text-error">{textErr.passport}</div>
-            </div>            
-            <button onClick={submitHandler}>Отправить</button>
-            <button onClick={clearHandler}>Очистить</button>
+            </div>
+            <div className="btn-box">
+                <button onClick={submitHandler}>Отправить</button>
+                {resp.statusCode && <div className="answer-box">
+                    <div>Ответ сервера:</div>
+                    <div className="answer-code">Код ответа: {resp.statusCode}</div>
+                    <div className="answer-text">Текст ответа: {resp.statusText}</div>
+                </div>}
+            </div>         
         </form>
     )
 }

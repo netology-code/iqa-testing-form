@@ -21,12 +21,37 @@
 }
 .form-box form h2 {
     font-size: 40px;
-    margin: 0 0 10px;
+    margin: 0 0 20px;
 }
 .input-box {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
     position: relative;
+}
+.clear {
+    position: absolute;
+    top: 14px;
+    right: 10px;
+    font-size: 30px;
+    color: red;
+    transform: rotate(45deg);
+    width: 30px;
+    height: 30px;
+    border: 1px solid red;
+    border-radius: 50%;
+    text-align: center;
+    padding: 0;
+    line-height: 0.75;
+    opacity: 0.4;
+    cursor: pointer;
+}
+.clear:hover {
+    opacity: 1;
+}
+.input-label {
+    text-transform: uppercase;
+    color: #aaa;
+    font-size: 12px;
 }
 .form-box input {
     width: 100%;    
@@ -41,9 +66,10 @@
     width: 100%;
     color: red;
     height: 30px;
+    font-size: 12px;
 }
 .form-box button {
-    margin-top: 40px;
+    
     outline: none;
     border: none;
     background-color: #4ace9f;
@@ -53,6 +79,16 @@
     font-weight: 700;
     font-size: 26px;
     margin-right: 10px;
+}
+
+.btn-box {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    gap: 30px;
+    margin-top: 40px;
+}
+.answer-box {
 }
 
 @media screen and (max-width: 500px){
