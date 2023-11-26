@@ -9,6 +9,7 @@ function App() {
         <div className='logo'>
             <img src={logoImg} alt="" />
         </div>
+        <div className='info-box'>Это тестовая страница для выполнения домашнего задания на курсе “Ручное тестирование веб-приложений”. Данные, внесенные в форму, не сохраняются.</div>
         <div className='form-box'>
             <Form />
         </div>

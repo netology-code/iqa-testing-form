@@ -132,7 +132,12 @@ export const Form = () => {
                 isEmpty = true;
                 tempIsValidObj[propValue] = false;
                 tempTextErr[propValue] = 'Поле должно быть заполнено';                
-            } 
+            }
+            if (propValue === 'surname' && inputsValue[propValue].includes('-')) {
+                isEmpty = true;
+                tempIsValidObj[propValue] = false;
+                tempTextErr[propValue] = 'Что-то пошло не так';
+            }
         }
         
         if (isEmpty) {
@@ -147,6 +152,7 @@ export const Form = () => {
                 return;
             }           
         }
+       
 
         const result = await fetch(import.meta.env.VITE_URL, {
             method: 'post',
@@ -167,8 +173,8 @@ export const Form = () => {
         //     console.log(data);
         // }
 
-        setisValidInp(isValidInputs);
-        setInputsValue(initialState);
+        // setisValidInp(isValidInputs);
+        // setInputsValue(initialState);
     }    
     
     
